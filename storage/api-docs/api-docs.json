@@ -1,0 +1,284 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CommentsApi",
+        "version": "1.0"
+    },
+    "paths": {
+        "/comments/search": {
+            "get": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Search comments by string",
+                "operationId": "49281690701cee3f94d03ef87f12f5d4",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "search query",
+                        "required": true,
+                        "schema": {
+                            "description": "search query",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Search comments by string",
+                "description": "return user access token",
+                "operationId": "6a1c0206906670e5ec8bca79c2581d34",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "email@email.email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            }
+        },
+        "/comments/{comment_id}": {
+            "get": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "get a comment data by id",
+                "operationId": "25c26bdec412916a1d975b57bb4a58cd",
+                "parameters": [
+                    {
+                        "name": "comment_id",
+                        "in": "path",
+                        "description": "comment id",
+                        "required": true,
+                        "schema": {
+                            "description": "comment id",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Update an existing comment",
+                "operationId": "7b9d029e9beda6fd8240839cd5225525",
+                "parameters": [
+                    {
+                        "name": "comment_id",
+                        "in": "path",
+                        "description": "comment id",
+                        "required": true,
+                        "schema": {
+                            "description": "comment id",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "comment_text",
+                                    "news_id"
+                                ],
+                                "properties": {
+                                    "comment_text": {
+                                        "type": "string",
+                                        "example": "some kind of comment text"
+                                    },
+                                    "news_id": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Create a new Comment",
+                "operationId": "9fb1c546cb4cd0644ff32d212e56c60e",
+                "parameters": [
+                    {
+                        "name": "comment_id",
+                        "in": "path",
+                        "description": "comment id",
+                        "required": true,
+                        "schema": {
+                            "description": "comment id",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "comment_text",
+                                    "news_id"
+                                ],
+                                "properties": {
+                                    "comment_text": {
+                                        "type": "string",
+                                        "example": "some kind of comment text"
+                                    },
+                                    "news_id": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Delete comment by id",
+                "operationId": "9c3dd1266a3fc77fb509241df998c38f",
+                "parameters": [
+                    {
+                        "name": "comment_id",
+                        "in": "path",
+                        "description": "comment id",
+                        "required": true,
+                        "schema": {
+                            "description": "comment id",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            }
+        },
+        "/comments/news/{news_id}": {
+            "get": {
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Get all comennts by news_id",
+                "operationId": "a50024a6993b96aac0efce29355ae30d",
+                "parameters": [
+                    {
+                        "name": "news_id",
+                        "in": "path",
+                        "description": "news id",
+                        "required": true,
+                        "schema": {
+                            "description": "news id",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Comment",
+            "description": "Comment"
+        }
+    ]
+}
