@@ -12,4 +12,11 @@ class News extends Model
         'title',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comments::class);
+    }
 }

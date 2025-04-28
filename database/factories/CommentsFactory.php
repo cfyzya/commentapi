@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\News;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +19,16 @@ class CommentsFactory extends Factory
     public function definition(): array
     {
         return [
-            'news_id' => News::factory()->create(),
+            'news_id' => News::inRandomOrder()->first()->id,
+            'user_id' => User::inRandomOrder()->first()->id,
             'comment_text' => $this->faker->realText(),
             'rating' => $this->faker->numberBetween(1, 5),
         ];
     }
+
+    public function negativeRating()
+    {
+        return $this->state(fn (array $attributes) => ['rating' => $this->faker->numberBetween(-5, -1)]);
+    }
+
 }

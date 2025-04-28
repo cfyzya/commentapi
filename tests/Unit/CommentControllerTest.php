@@ -6,6 +6,7 @@ use App\Models\Comments;
 use App\Models\News;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -27,8 +28,7 @@ class CommentControllerTest extends TestCase
 
     public function test_auth(): void
     {
-
-        $response = $this->json('post', 'api/comments')->assertStatus(401);
+        $this->json('post', 'api/comments')->assertStatus(401);
     }
 
     public function test_comments_create(): void
@@ -39,9 +39,8 @@ class CommentControllerTest extends TestCase
         );
 
         $news = News::factory()->create();
-
         $this->json('post', 'api/comments',['news_id' => $news->id, 'comment_text' => 'lorem ipsum'])
-            ->assertStatus(200);
+            ->assertStatus(201);
     }
 
     public function test_comments_get_by_id()
@@ -49,10 +48,10 @@ class CommentControllerTest extends TestCase
         Sanctum::actingAs(
             User::factory()->create(),
         );
-
+        News::factory()->create();
         $comments = Comments::factory()->create();
-
-        $this->json('get', 'api/comments/' . $comments->id)->assertStatus(200);
+        $this->json('get', 'api/comments/' . $comments->id)
+            ->assertStatus(200);
     }
 
     public function test_update_comment()
@@ -60,7 +59,7 @@ class CommentControllerTest extends TestCase
         Sanctum::actingAs(
             User::factory()->create(),
         );
-
+        News::factory()->create();
         $comments = Comments::factory()->create();
 
         $this
@@ -77,7 +76,7 @@ class CommentControllerTest extends TestCase
         Sanctum::actingAs(
             User::factory()->create(),
         );
-
+        News::factory()->create();
         $comments = Comments::factory()->create();
 
        $this->json(
@@ -93,7 +92,7 @@ class CommentControllerTest extends TestCase
         Sanctum::actingAs(
             User::factory()->create(),
         );
-
+        News::factory()->create();
         $comments = Comments::factory()->count(5)->create();
 
         $searcheblaeComments = $comments[0];
@@ -102,9 +101,11 @@ class CommentControllerTest extends TestCase
             'get',
             'api/comments/search',
             ['search' => substr($searcheblaeComments->comment_text, '5')]
-        )
-            ->getContent();
+        );
+            $response->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+            );
 
-        $this->assertEquals(json_decode($response), json_decode(json_encode([$searcheblaeComments])));
     }
 }

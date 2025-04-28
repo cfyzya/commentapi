@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\CommentCreated;
+use App\DTOs\CommentsDTO;
+use App\Http\Requests\CreateCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comments;
 use App\Models\News;
-use App\Models\User;
+use App\Services\CommentService;
+use App\Services\SearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\Log;
 
 
 /**
@@ -22,9 +26,15 @@ use Illuminate\Support\Facades\Gate;
  */
 class CommentsController extends Controller
 {
+    public function __construct(
+        private CommentService $commentsService,
+        private SearchService $searchService,
+    )
+    {
+    }
+
     /**
      * @param Request $request
-     * @return JsonResponse
      *
      * @OA\Post(
      *     path="/comments/{comment_id}",
@@ -43,22 +53,15 @@ class CommentsController extends Controller
      *     @OA\Response(response=400, description="Invalid request")
      * )
      */
-    public function create(Request $request): JsonResponse
+    public function create(CreateCommentRequest $request)
     {
-        $data = $request->validate([
-            'comment_text' => 'required|string',
-            'news_id' => 'required|integer|exists:news,id',
-        ]);
-
         try {
-            $comment = Comments::create($data);
-            CommentCreated::dispatch($comment);
+            $comment = $this->commentsService->create(CommentsDTO::fromRequest($request));
         } catch (\Exception $exception) {
-            //todo add log
-            return response()->json('something went wrong', 500);
+            return response()->json($exception->getMessage(), 500);
         }
 
-        return response()->json($comment->toJson());
+        return $comment->toResource();
     }
 
     /**
@@ -83,29 +86,21 @@ class CommentsController extends Controller
      *    @OA\Response(response=400, description="Invalid request")
      *)
  */
-    public function update(Comments $comment, Request $request): JsonResponse
+    public function update(Comments $comment, UpdateCommentRequest $request)
     {
-        Gate::allowIf(function (User $user) use ($comment) {
-            return $comment->isOwnedBy($user);
-        });
-
-        $data = $request->validate([
-            'comment_text' => 'required|string',
-            'news_id' => 'required|integer|exists:news,id',
-        ]);
-
         try {
-            $comment->update($data);
+            $comment = $this->commentsService->update($comment->id, CommentsDTO::fromRequest($request));
         } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
             return response()->json($exception->getMessage(), 500);
         }
 
-        return response()->json($comment->toJson());
+        return $comment->toResource();
     }
 
     /**
      * @param Comments $comment
-     * @return JsonResponse
+     * @return JsonResource
      *
      * @OA\Get(
      *      path="/comments/{comment_id}",
@@ -116,9 +111,9 @@ class CommentsController extends Controller
      *      @OA\Response(response=400, description="Invalid request")
      *  )
      */
-    public function getById(Comments $comment): JsonResponse
+    public function getById(Comments $comment)
     {
-        return response()->json($comment->toJson());
+        return $comment->toResource();
     }
 
     /**
@@ -134,12 +129,10 @@ class CommentsController extends Controller
      *     @OA\Response(response=400, description="Invalid request")
      * )
      */
-    public function getByNewsId(News $news): JsonResponse
+    public function getByNewsId(News $news)
     {
-        return response()->json(
-            Comments::where('news_id', '=', $news->id)
-                ->get(['id', 'comment_text'])
-        );
+        $comments = $this->commentsService->getByNewsId($news->id);
+        return $comments->toResourceCollection();
     }
 
     /**
@@ -156,20 +149,16 @@ class CommentsController extends Controller
      *      @OA\Response(response=200, description="Successful operation"),
      *      @OA\Response(response=400, description="Invalid request")
      *  )
- */
+     */
     public function delete(Comments $comment)
     {
-        Gate::allowIf(function (User $user) use ($comment) {
-            return $comment->isOwnedBy($user);
-        });
-
-        $comment->delete();
+        $this->commentsService->delete($comment->id);
         return response()->json('success');
     }
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return ResourceCollection
      *
      * @OA\Get (
      *     path="/comments/search",
@@ -180,10 +169,9 @@ class CommentsController extends Controller
      *     @OA\Response(response=400, description="Invalid request")
      * )
      */
-    public function search(Request $request): JsonResponse
+    public function search(Request $request): ResourceCollection
     {
-        $search = $request->get('search');
-        $comments = Comments::whereLike('comment_text', '%' . $search . '%')->get();
-        return response()->json($comments);
+        $comments = $this->searchService->searchComments($request->get('search'));
+        return $comments->toResourceCollection();
     }
 }

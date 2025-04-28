@@ -112,10 +112,22 @@ return [
             'replace_placeholders' => true,
         ],
 
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
+        'error' => [
+            'driver'  => 'monolog',
+            'handler' => Monolog\Handler\FilterHandler::class,
+            'handler_with' => [
+                'handler' => new StreamHandler(storage_path('logs/error.log')),
+                'minLevelOrList' => [Monolog\Level::Error],
+            ],
+        ],
+
+        'info' => [
+            'driver'  => 'monolog',
+            'handler' => Monolog\Handler\FilterHandler::class,
+            'handler_with' => [
+                'handler' => new StreamHandler(storage_path('logs/info.log')),
+                'minLevelOrList' => [Monolog\Level::Info],
+            ],
         ],
 
         'null' => [

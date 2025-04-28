@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -33,13 +34,8 @@ class AuthController extends Controller
      *      @OA\Response(response=400, description="Invalid request")
      *  )
      */
-    public function getAccessToken(Request $request)
+    public function getAccessToken(AuthRequest $request)
     {
-        $request->validate([
-           'email' => 'required|string|email',
-           'password' => 'required|string',
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
         if( !$user || !Hash::check($request->password, $user->password) ) {
